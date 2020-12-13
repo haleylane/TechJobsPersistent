@@ -24,7 +24,7 @@ namespace TechJobsPersistent.Controllers
 
         public IActionResult Index()
         {
-            List<Job> jobs = context.Jobs.Include(j => j.Employer).ToList();
+            List<Job> jobs = context.Jobs.Include(j => j.Employer).Include(j => j.JobSkills).ToList();
 
             return View(jobs);
         }
@@ -32,12 +32,42 @@ namespace TechJobsPersistent.Controllers
         [HttpGet("/Add")]
         public IActionResult AddJob()
         {
-            return View();
+            AddJobViewModel addJobViewModel = new AddJobViewModel(context.Employers.ToList(), context.Skills.ToList());
+            return View(addJobViewModel);
         }
 
-        public IActionResult ProcessAddJobForm()
+        //[HttpPost]
+        //[Route("Jobs/Add")]
+        public IActionResult ProcessAddJobForm(AddJobViewModel addJobViewModel, string[] selectedSkills)
         {
-            return View();
+            if (ModelState.IsValid)
+            {
+                Job newJob = new Job
+                {
+                    Name = addJobViewModel.Name,
+                    EmployerId = addJobViewModel.EmployerId,
+                    Employer = context.Employers.Find(addJobViewModel.EmployerId),
+
+                };
+
+                for(int i = 0; i < selectedSkills.Length; i++)
+                {
+                    JobSkill newJobSkill = new JobSkill
+                    {
+                            JobId = newJob.Id,
+                            Job = newJob,
+                            SkillId = Int32.Parse(selectedSkills[i])
+                    };
+
+                    context.JobSkills.Add(newJobSkill);
+                }
+
+                context.Jobs.Add(newJob);
+                context.SaveChanges();
+
+                return Redirect("Index");
+            }
+            return View("Add", addJobViewModel);
         }
 
         public IActionResult Detail(int id)
