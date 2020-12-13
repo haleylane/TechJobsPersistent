@@ -8,6 +8,8 @@
 
 --Part 3
 
---SELECT Skills.Name, Skills.Description
+--SELECT Name, Description 
 --FROM Skills
---INNER JOIN JobSkills ON Skills.Id = JobSkills.SkillId AND JobId IS NOT NULL
+--LEFT JOIN JobSkills ON Skills.Id= JobSkills.SkillId
+--WHERE JobSkills.JobId IS NOT NULL
+--ORDER BY Name ASC;
